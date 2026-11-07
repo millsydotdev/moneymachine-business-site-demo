@@ -1,6 +1,6 @@
 {
   "bundle_filename": "turnkey-react19-starter-kit-v1.0.0.zip",
-  "bundle_size_bytes": 28132,
+  "bundle_size_bytes": 5275,
   "currency": "GBP",
   "modules_included": [
     "Authentication Context & Session Persistence",
@@ -21,7 +21,7 @@
     "typescript": "^5.7.3",
     "vite": "^6.1.0"
   },
-  "sha256_checksum": "f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265",
+  "sha256_checksum": "68236ecca6419fff36f6573e475f6df9e8fc8fa0d0189da60bb75a849ddd0a52",
   "verification_status": "VALIDATED_ISOLATED_BUILD_PASS",
   "verified_at": "2026-11-07T16:13:25Z",
   "version": "1.0.0"
