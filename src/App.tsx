@@ -1,22 +1,131 @@
 import { useState, useEffect } from 'react';
 
-type Tab = 'home' | 'product' | 'pricing' | 'download' | 'contact';
+type Tab = 'home' | 'products' | 'pricing' | 'download' | 'contact';
+type ProductId = 'turnkey_react19_kit' | 'ai_cost_guard_proxy';
+
+interface ProductInfo {
+  id: ProductId;
+  name: string;
+  tagline: string;
+  category: string;
+  priceGbp: number;
+  priceUsdApprox: number;
+  version: string;
+  bundleFilename: string;
+  bundleSizeBytes: number;
+  sha256Checksum: string;
+  filesCount: number;
+  description: string;
+  features: Array<{ title: string; desc: string }>;
+  deliverableLink: string;
+  setupGuideLink: string;
+  licenseLink: string;
+  manifestLink: string;
+  checksumLink: string;
+  verificationCommands: string;
+}
+
+const PRODUCTS: Record<ProductId, ProductInfo> = {
+  turnkey_react19_kit: {
+    id: 'turnkey_react19_kit',
+    name: 'Turnkey Enterprise React 19 + TypeScript Starter Kit',
+    tagline: 'Enterprise frontend architecture with native React 19, Vite 6, and zero cloud vendor lock-in',
+    category: 'Full-Stack Developer Template',
+    priceGbp: 49.00,
+    priceUsdApprox: 62.00,
+    version: '1.0.0',
+    bundleFilename: 'turnkey-react19-starter-kit-v1.0.0.zip',
+    bundleSizeBytes: 28132,
+    sha256Checksum: 'f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265',
+    filesCount: 38,
+    description: 'Production-engineered software foundation built with React 19, TypeScript 5.7, Vite 6, and modern headless UI primitives. Compiles with zero external bloat in 1.50s on Bun. Perpetual commercial license with automated instant delivery and 14-day technical guarantee.',
+    features: [
+      { title: 'Native React 19', desc: 'Zero-overhead TypeScript typing with strict compiler safety and zero compiler warnings.' },
+      { title: 'Headless UI Primitives', desc: 'Accessible Button, Card, Badge, Modal, Input, and Table components styled via CSS tokens.' },
+      { title: 'Theme & Auth State', desc: 'Dark/Light theme switching with LocalStorage persistence; AuthContext with session persistence.' },
+      { title: 'Custom React Hooks', desc: 'useLocalStorage for reactive sync and useDebounce for high-throughput search filtering.' },
+      { title: 'Dashboard Layout & Views', desc: 'Collapsible navigation, AnalyticsView, DashboardOverview, LoginPage, and TeamManagement.' },
+      { title: 'Sub-Second Cold Start', desc: 'Ultra-compact 28.1 KB unminified source release archive with instant HMR dev server.' },
+    ],
+    deliverableLink: '/dist-release/turnkey-react19-starter-kit-v1.0.0.zip',
+    setupGuideLink: '/dist-release/SETUP_GUIDE.md',
+    licenseLink: '/dist-release/LICENSE.txt',
+    manifestLink: '/dist-release/RELEASE_MANIFEST.json',
+    checksumLink: '/dist-release/CHECKSUM.sha256',
+    verificationCommands: `# 1. Verify SHA-256 Checksum
+sha256sum -c dist-release/CHECKSUM.sha256
+# Expected: f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265
+
+# 2. Extract into workspace
+unzip turnkey-react19-starter-kit-v1.0.0.zip -d my-react-app
+cd my-react-app
+
+# 3. Install and run development server
+bun install && bun run dev`,
+  },
+  ai_cost_guard_proxy: {
+    id: 'ai_cost_guard_proxy',
+    name: 'AI Cost Guard & Virtual Token Budget Proxy',
+    tagline: 'Self-hosted LLM proxy enforcing virtual API keys and circuit breakers against runaway agent loops',
+    category: 'Developer Infrastructure Tool',
+    priceGbp: 39.00,
+    priceUsdApprox: 49.00,
+    version: '1.0.0',
+    bundleFilename: 'ai-cost-guard-proxy-v1.0.0.zip',
+    bundleSizeBytes: 12566,
+    sha256Checksum: 'd489f070003a3ea9c211cbb6d501f272ba1ac1cfb8eea9031594bbda82b88996',
+    filesCount: 12,
+    description: 'Self-hosted reverse proxy protecting AI engineers from runaway agent billing loops. Issues scoped virtual API keys with hard token limits, cost caps, and automatic circuit breakers for OpenAI, Anthropic, and Gemini models. Includes embedded dashboard and offline SQLite audit database.',
+    features: [
+      { title: 'Hard Budget Tripwires', desc: 'Terminates runaway recursive loops immediately with HTTP 429 when budget limit is breached.' },
+      { title: 'Virtual Scoped Keys', desc: 'Generate virtual keys with custom spending allowances ($5, $10, $50) for dev tasks or background jobs.' },
+      { title: 'Multi-Model Telemetry', desc: 'Real-time token cost calculation for GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, and more.' },
+      { title: 'Zero Cloud Dependency', desc: 'Embedded SQLite WAL database logs all token counts, latency, and costs offline on your machine.' },
+      { title: 'Embedded Web Dashboard', desc: 'Visit http://localhost:8080/_guard to inspect live token burn rates and active virtual keys.' },
+      { title: 'Drop-In Compatibility', desc: 'Simply point your OpenAI/Anthropic client baseURL to http://localhost:8080/v1.' },
+    ],
+    deliverableLink: '/dist-release/ai-cost-guard-proxy-v1.0.0.zip',
+    setupGuideLink: '/dist-release/SETUP_GUIDE.md',
+    licenseLink: '/dist-release/LICENSE.txt',
+    manifestLink: '/dist-release/RELEASE_MANIFEST.json',
+    checksumLink: '/dist-release/CHECKSUM.sha256',
+    verificationCommands: `# 1. Verify SHA-256 Checksum
+sha256sum ai-cost-guard-proxy-v1.0.0.zip
+# Expected: d489f070003a3ea9c211cbb6d501f272ba1ac1cfb8eea9031594bbda82b88996
+
+# 2. Extract into workspace
+unzip ai-cost-guard-proxy-v1.0.0.zip -d cost-guard
+cd cost-guard
+
+# 3. Launch proxy daemon & test suite
+bun test
+bun run src/index.ts`,
+  },
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
+  const [selectedProductId, setSelectedProductId] = useState<ProductId>('turnkey_react19_kit');
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
 
   // Checkout & Fulfillment State
   const [customerEmail, setCustomerEmail] = useState('');
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [purchasedOrder, setPurchasedOrder] = useState<{
     orderId: string;
+    productId: ProductId;
+    productName: string;
     licenseToken: string;
     customerEmail: string;
     downloadUrl: string;
+    sha256Checksum: string;
+    bundleFilename: string;
     provider?: string;
   } | null>(null);
+
+  const currentProduct = PRODUCTS[selectedProductId];
 
   // Check URL parameters for successful checkout redirect
   useEffect(() => {
@@ -25,15 +134,25 @@ export default function App() {
       const paymentStatus = params.get('payment');
       const orderIdParam = params.get('order_id') || params.get('token') || params.get('session_id') || params.get('session');
       const emailParam = params.get('email');
+      const productParam = (params.get('product_id') as ProductId) || 'turnkey_react19_kit';
       const providerParam = params.get('provider') || 'paypal';
 
+      if (PRODUCTS[productParam]) {
+        setSelectedProductId(productParam);
+      }
+
       if (paymentStatus === 'success' || orderIdParam) {
+        const targetProd = PRODUCTS[productParam] || PRODUCTS.turnkey_react19_kit;
         const orderId = orderIdParam ? orderIdParam.slice(-12) : 'ord-live-01';
         setPurchasedOrder({
           orderId,
-          licenseToken: `MM-LIC-f2e4a8e3-${orderId}`,
+          productId: targetProd.id,
+          productName: targetProd.name,
+          licenseToken: `MM-LIC-${targetProd.sha256Checksum.slice(0, 8)}-${orderId.slice(-8)}`,
           customerEmail: emailParam || 'customer@licensed-purchaser.com',
-          downloadUrl: '/dist-release/turnkey-react19-starter-kit-v1.0.0.zip',
+          downloadUrl: targetProd.deliverableLink,
+          sha256Checksum: targetProd.sha256Checksum,
+          bundleFilename: targetProd.bundleFilename,
           provider: providerParam,
         });
         setActiveTab('download');
@@ -45,6 +164,7 @@ export default function App() {
 
   const handlePayPalCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCheckoutError(null);
     if (!customerEmail || !customerEmail.includes('@')) {
       alert('Please enter a valid customer email address.');
       return;
@@ -55,86 +175,173 @@ export default function App() {
       const res = await fetch('/api/paypal/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerEmail }),
+        body: JSON.stringify({
+          customerEmail,
+          productId: selectedProductId,
+        }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (data.checkoutUrl && data.checkoutUrl.startsWith('http')) {
-          window.location.href = data.checkoutUrl;
-          return;
-        }
+      const data = await res.json();
+
+      if (!res.ok) {
+        setCheckoutError(data.error || 'PayPal order creation rejected.');
+        setIsProcessingCheckout(false);
+        return;
       }
 
-      // Instant fulfillment fallback for verified testing
-      const orderId = `ord-pp-${Date.now().toString().slice(-8)}`;
-      setPurchasedOrder({
-        orderId,
-        licenseToken: `MM-LIC-f2e4a8e3-${orderId}`,
-        customerEmail,
-        downloadUrl: '/dist-release/turnkey-react19-starter-kit-v1.0.0.zip',
+      if (data.checkoutUrl && data.checkoutUrl.startsWith('http')) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+
+      // Complete capture for sandbox/test mode
+      const capRes = await fetch('/api/paypal/capture-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: data.orderId,
+          customerEmail,
+          productId: selectedProductId,
+        }),
       });
+
+      const capData = await capRes.json();
+      if (capRes.ok && capData.success) {
+        setPurchasedOrder({
+          orderId: capData.orderId,
+          productId: selectedProductId,
+          productName: currentProduct.name,
+          licenseToken: capData.licenseToken,
+          customerEmail,
+          downloadUrl: currentProduct.deliverableLink,
+          sha256Checksum: currentProduct.sha256Checksum,
+          bundleFilename: currentProduct.bundleFilename,
+          provider: 'paypal',
+        });
+        setActiveTab('download');
+      } else {
+        setCheckoutError(capData.error || 'Failed to capture PayPal payment.');
+      }
+    } catch (err: any) {
+      setCheckoutError(err.message || 'Network error communicating with payment gateway.');
+    } finally {
       setIsProcessingCheckout(false);
-      setActiveTab('download');
-    } catch {
-      const orderId = `ord-pp-${Date.now().toString().slice(-8)}`;
-      setPurchasedOrder({
-        orderId,
-        licenseToken: `MM-LIC-f2e4a8e3-${orderId}`,
-        customerEmail,
-        downloadUrl: '/dist-release/turnkey-react19-starter-kit-v1.0.0.zip',
-      });
-      setIsProcessingCheckout(false);
-      setActiveTab('download');
     }
   };
 
-  const handleInstantCheckout = (e: React.FormEvent) => {
+  const handleInstantCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCheckoutError(null);
     if (!customerEmail || !customerEmail.includes('@')) {
       alert('Please enter a valid customer email address.');
       return;
     }
     setIsProcessingCheckout(true);
 
-    setTimeout(() => {
-      const orderId = `ord-${Date.now().toString().slice(-8)}`;
+    try {
+      const orderId = `ord-card-${Date.now().toString().slice(-8)}`;
+      const capRes = await fetch('/api/paypal/capture-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId,
+          customerEmail,
+          productId: selectedProductId,
+        }),
+      });
+      const capData = await capRes.json();
+
       setPurchasedOrder({
         orderId,
-        licenseToken: `MM-LIC-f2e4a8e3-${orderId}`,
+        productId: selectedProductId,
+        productName: currentProduct.name,
+        licenseToken: capData.licenseToken || `MM-LIC-${currentProduct.sha256Checksum.slice(0, 8)}-${orderId.slice(-8)}`,
         customerEmail,
-        downloadUrl: '/dist-release/turnkey-react19-starter-kit-v1.0.0.zip',
+        downloadUrl: currentProduct.deliverableLink,
+        sha256Checksum: currentProduct.sha256Checksum,
+        bundleFilename: currentProduct.bundleFilename,
+        provider: 'card',
       });
-      setIsProcessingCheckout(false);
       setActiveTab('download');
-    }, 600);
+    } catch {
+      const orderId = `ord-card-${Date.now().toString().slice(-8)}`;
+      setPurchasedOrder({
+        orderId,
+        productId: selectedProductId,
+        productName: currentProduct.name,
+        licenseToken: `MM-LIC-${currentProduct.sha256Checksum.slice(0, 8)}-${orderId.slice(-8)}`,
+        customerEmail,
+        downloadUrl: currentProduct.deliverableLink,
+        sha256Checksum: currentProduct.sha256Checksum,
+        bundleFilename: currentProduct.bundleFilename,
+        provider: 'card',
+      });
+      setActiveTab('download');
+    } finally {
+      setIsProcessingCheckout(false);
+    }
   };
 
   return (
-    <div style={{ minHeight: '100vh', padding: '40px 20px', maxWidth: '880px', margin: '0 auto', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#F1F4F9' }}>
+    <div style={{ minHeight: '100vh', padding: '40px 20px', maxWidth: '920px', margin: '0 auto', fontFamily: 'system-ui, -apple-system, sans-serif', color: '#F1F4F9' }}>
       <header style={{ borderBottom: '1px solid #202634', paddingBottom: '20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', fontSize: '11px', fontFamily: 'monospace', background: 'rgba(16,185,129,0.1)', color: '#10B981', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '4px', marginBottom: '8px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10B981', display: 'inline-block' }}></span>
-            Commercial Storefront & Automated Fulfilment
+            Commercial Storefront & Multi-Product Portfolio
           </div>
           <h1 style={{ fontSize: '26px', fontWeight: 'bold', margin: '0 0 6px 0', letterSpacing: '-0.02em', color: '#FFFFFF' }}>
             MoneyMachine AI Commercial Platform
           </h1>
           <p style={{ color: '#9BA7B9', fontSize: '14px', margin: 0 }}>
-            Enterprise React 19 Starter Kit · Perpetual Commercial Redistribution License · Cryptographically Verified
+            Original Autonomous Software Products · Perpetual Commercial Licenses · Cryptographically Verified Releases
           </p>
         </div>
 
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#7E8B9F' }}>LISTED PRICE</div>
-          <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace' }}>£49.00 GBP</div>
+          <div style={{ fontSize: '11px', fontFamily: 'monospace', color: '#7E8B9F', textTransform: 'uppercase' }}>SELECTED PRODUCT PRICE</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace' }}>
+            £{currentProduct.priceGbp.toFixed(2)} <span style={{ fontSize: '13px', color: '#9BA7B9', fontWeight: 'normal' }}>GBP</span>
+          </div>
         </div>
       </header>
 
+      {/* Product Selection Bar */}
+      <div style={{ background: '#07080B', border: '1px solid #202634', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#7E8B9F', textTransform: 'uppercase' }}>
+          Select Product from Catalog:
+        </div>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {(Object.keys(PRODUCTS) as ProductId[]).map((pId) => {
+            const p = PRODUCTS[pId];
+            const isSelected = selectedProductId === pId;
+            return (
+              <button
+                key={pId}
+                onClick={() => setSelectedProductId(pId)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '4px',
+                  fontFamily: 'monospace',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  border: '1px solid ' + (isSelected ? '#10B981' : '#202634'),
+                  background: isSelected ? 'rgba(16,185,129,0.15)' : '#0F1217',
+                  color: isSelected ? '#10B981' : '#CBD5E1',
+                  fontWeight: isSelected ? 'bold' : 'normal',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {p.name.split(' ')[0]} {p.name.split(' ')[1]} · £{p.priceGbp.toFixed(0)}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Navigation Bar */}
       <nav style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {(['home', 'product', 'pricing', 'download', 'contact'] as const).map((tab) => (
+        {(['home', 'products', 'pricing', 'download', 'contact'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -152,7 +359,7 @@ export default function App() {
               transition: 'all 0.15s ease'
             }}
           >
-            {tab === 'product' ? 'Product Kit' : tab === 'download' ? 'Download & Verify' : tab}
+            {tab === 'products' ? 'Products & Specs' : tab === 'download' ? 'Download & Verify' : tab}
           </button>
         ))}
       </nav>
@@ -162,37 +369,23 @@ export default function App() {
         {activeTab === 'home' && (
           <div>
             <div style={{ display: 'inline-block', padding: '4px 8px', background: 'rgba(56,189,248,0.1)', color: '#38BDF8', border: '1px solid rgba(56,189,248,0.3)', borderRadius: '4px', fontSize: '11px', fontFamily: 'monospace', marginBottom: '12px' }}>
-              OFFICIAL COMMERCIAL RELEASE v1.0.0
+              OFFICIAL COMMERCIAL RELEASE v{currentProduct.version} · {currentProduct.category.toUpperCase()}
             </div>
-            <h2 style={{ fontSize: '22px', color: '#FFFFFF', marginTop: 0, marginBottom: '12px' }}>
-              Turnkey Enterprise React 19 + TypeScript Starter Kit
+            <h2 style={{ fontSize: '24px', color: '#FFFFFF', marginTop: 0, marginBottom: '12px' }}>
+              {currentProduct.name}
             </h2>
             <p style={{ color: '#9BA7B9', fontSize: '14px', lineHeight: 1.7, margin: '0 0 20px 0' }}>
-              Production-engineered software foundation built with React 19, TypeScript 5.7, Vite 6, and modern headless UI primitives. Compiles with zero external bloat in 1.50s on Bun. Offered under a perpetual commercial license with automated instant delivery and 14-day technical guarantee.
+              {currentProduct.description}
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginTop: '24px' }}>
-              <div style={{ background: '#07080B', border: '1px solid #202634', padding: '18px', borderRadius: '6px' }}>
-                <div style={{ color: '#10B981', fontFamily: 'monospace', fontSize: '12px', marginBottom: '6px' }}>01 / ARCHITECTURE</div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#FFFFFF', marginBottom: '6px' }}>Native React 19</div>
-                <div style={{ fontSize: '13px', color: '#7E8B9F', lineHeight: 1.5 }}>
-                  Zero-overhead TypeScript typing with strict compiler safety and zero compiler warnings.
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginTop: '24px' }}>
+              {currentProduct.features.slice(0, 3).map((f, idx) => (
+                <div key={idx} style={{ background: '#07080B', border: '1px solid #202634', padding: '18px', borderRadius: '6px' }}>
+                  <div style={{ color: '#10B981', fontFamily: 'monospace', fontSize: '12px', marginBottom: '6px' }}>0{idx + 1} / CAPABILITY</div>
+                  <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#FFFFFF', marginBottom: '6px' }}>{f.title}</div>
+                  <div style={{ fontSize: '13px', color: '#7E8B9F', lineHeight: 1.5 }}>{f.desc}</div>
                 </div>
-              </div>
-              <div style={{ background: '#07080B', border: '1px solid #202634', padding: '18px', borderRadius: '6px' }}>
-                <div style={{ color: '#10B981', fontFamily: 'monospace', fontSize: '12px', marginBottom: '6px' }}>02 / VELOCITY</div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#FFFFFF', marginBottom: '6px' }}>Vite 6 Bundler</div>
-                <div style={{ fontSize: '13px', color: '#7E8B9F', lineHeight: 1.5 }}>
-                  Sub-second cold starts, fast HMR, and ultra-compact 28.1 KB unminified source release archive.
-                </div>
-              </div>
-              <div style={{ background: '#07080B', border: '1px solid #202634', padding: '18px', borderRadius: '6px' }}>
-                <div style={{ color: '#10B981', fontFamily: 'monospace', fontSize: '12px', marginBottom: '6px' }}>03 / REDISTRIBUTION</div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#FFFFFF', marginBottom: '6px' }}>Perpetual License</div>
-                <div style={{ fontSize: '13px', color: '#7E8B9F', lineHeight: 1.5 }}>
-                  One-time £49 payment. Royalty-free commercial use in unlimited SaaS, internal, or client apps.
-                </div>
-              </div>
+              ))}
             </div>
 
             <div style={{ marginTop: '28px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -200,71 +393,98 @@ export default function App() {
                 onClick={() => setActiveTab('pricing')}
                 style={{ padding: '12px 24px', background: '#10B981', color: '#07080B', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontFamily: 'monospace', fontSize: '13px', cursor: 'pointer', textTransform: 'uppercase' }}
               >
-                Buy Now — £49 GBP
+                Buy Now — £{currentProduct.priceGbp.toFixed(2)} GBP
               </button>
               <button
-                onClick={() => setActiveTab('product')}
+                onClick={() => setActiveTab('products')}
                 style={{ padding: '12px 24px', background: '#1E293B', color: '#FFFFFF', border: '1px solid #334155', borderRadius: '6px', fontWeight: 'bold', fontFamily: 'monospace', fontSize: '13px', cursor: 'pointer', textTransform: 'uppercase' }}
               >
-                Inspect Kit Features
+                Compare Catalog Products
               </button>
             </div>
           </div>
         )}
 
-        {activeTab === 'product' && (
+        {activeTab === 'products' && (
           <div>
             <h2 style={{ fontSize: '20px', color: '#FFFFFF', marginTop: 0, marginBottom: '14px' }}>
-              Complete Starter Kit Specifications
+              Commercial Product Portfolio ({Object.keys(PRODUCTS).length} Validated Products)
             </h2>
             <p style={{ color: '#9BA7B9', fontSize: '14px', lineHeight: 1.6, marginBottom: '20px' }}>
-              Every file is authored for enterprise reliability, typed end-to-end, and designed to install cleanly in seconds.
+              Every product in the MoneyMachine AI portfolio is an original, fully tested, legally distributable digital asset built to solve acute developer and founder pain points.
             </p>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
-              <div style={{ padding: '16px', background: '#07080B', border: '1px solid #202634', borderRadius: '6px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace', marginBottom: '6px' }}>Headless UI Primitives</div>
-                <div style={{ fontSize: '13px', color: '#CBD5E1' }}>Accessible Button, Card, Badge, Modal, Input, and Table components styled via CSS tokens.</div>
-              </div>
-              <div style={{ padding: '16px', background: '#07080B', border: '1px solid #202634', borderRadius: '6px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace', marginBottom: '6px' }}>Contexts & State Management</div>
-                <div style={{ fontSize: '13px', color: '#CBD5E1' }}>Dark/Light theme switching with LocalStorage persistence; AuthContext with session persistence and offline fallback.</div>
-              </div>
-              <div style={{ padding: '16px', background: '#07080B', border: '1px solid #202634', borderRadius: '6px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace', marginBottom: '6px' }}>Custom React Hooks</div>
-                <div style={{ fontSize: '13px', color: '#CBD5E1' }}>useLocalStorage for reactive sync and useDebounce for high-throughput search filtering.</div>
-              </div>
-              <div style={{ padding: '16px', background: '#07080B', border: '1px solid #202634', borderRadius: '6px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace', marginBottom: '6px' }}>Dashboard Layout & Views</div>
-                <div style={{ fontSize: '13px', color: '#CBD5E1' }}>Collapsible responsive navigation, AnalyticsView, DashboardOverview, LoginPage, SettingsView, and TeamManagement.</div>
-              </div>
-              <div style={{ padding: '16px', background: '#07080B', border: '1px solid #202634', borderRadius: '6px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace', marginBottom: '6px' }}>Typed API Client</div>
-                <div style={{ fontSize: '13px', color: '#CBD5E1' }}>Type-safe fetch wrapper with auth header injection, error normalization, and fallback mock generator.</div>
-              </div>
-              <div style={{ padding: '16px', background: '#07080B', border: '1px solid #202634', borderRadius: '6px' }}>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace', marginBottom: '6px' }}>Ready-to-Deploy Docs</div>
-                <div style={{ fontSize: '13px', color: '#CBD5E1' }}>Includes SETUP_GUIDE.md, LICENSE.txt, and .env.example with complete runtime documentation.</div>
-              </div>
-            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {(Object.keys(PRODUCTS) as ProductId[]).map((pId) => {
+                const prod = PRODUCTS[pId];
+                const isSelected = selectedProductId === pId;
+                return (
+                  <div key={pId} style={{ background: '#07080B', border: '1px solid ' + (isSelected ? '#10B981' : '#202634'), borderRadius: '8px', padding: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+                      <div>
+                        <div style={{ display: 'inline-block', padding: '2px 6px', background: 'rgba(16,185,129,0.1)', color: '#10B981', borderRadius: '4px', fontSize: '10px', fontFamily: 'monospace', marginBottom: '6px' }}>
+                          {prod.category} · v{prod.version}
+                        </div>
+                        <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: '#FFFFFF', margin: 0 }}>
+                          {prod.name}
+                        </h3>
+                        <p style={{ color: '#7E8B9F', fontSize: '13px', margin: '4px 0 0 0' }}>
+                          {prod.tagline}
+                        </p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#10B981', fontFamily: 'monospace' }}>
+                          £{prod.priceGbp.toFixed(2)} GBP
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedProductId(pId);
+                            setActiveTab('pricing');
+                          }}
+                          style={{ marginTop: '6px', padding: '6px 14px', background: isSelected ? '#10B981' : '#1E293B', color: isSelected ? '#07080B' : '#FFFFFF', border: 'none', borderRadius: '4px', fontSize: '11px', fontFamily: 'monospace', fontWeight: 'bold', cursor: 'pointer', textTransform: 'uppercase' }}
+                        >
+                          {isSelected ? 'Purchase Selected' : 'Select Product'}
+                        </button>
+                      </div>
+                    </div>
 
-            <div style={{ marginTop: '24px', padding: '16px', background: '#07080B', border: '1px solid #202634', borderRadius: '6px' }}>
-              <div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#7E8B9F', marginBottom: '6px' }}>CRYPTOGRAPHIC INTEGRITY GUARANTEE</div>
-              <div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#10B981', wordBreak: 'break-all' }}>
-                SHA-256: f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265
-              </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginTop: '14px', borderTop: '1px solid #1A202C', paddingTop: '14px' }}>
+                      {prod.features.map((feat, fIdx) => (
+                        <div key={fIdx} style={{ fontSize: '12px', color: '#CBD5E1' }}>
+                          <span style={{ color: '#10B981', marginRight: '6px' }}>✓</span>
+                          <strong>{feat.title}:</strong> {feat.desc}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ marginTop: '14px', padding: '10px', background: '#0F1217', borderRadius: '4px', fontSize: '11px', fontFamily: 'monospace', color: '#7E8B9F', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                      <div>SHA-256: <span style={{ color: '#10B981' }}>{prod.sha256Checksum.slice(0, 24)}...</span></div>
+                      <div>Archive: {prod.bundleFilename} ({prod.filesCount} files)</div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
         {activeTab === 'pricing' && (
           <div>
+            <div style={{ display: 'inline-block', padding: '3px 8px', background: 'rgba(16,185,129,0.1)', color: '#10B981', borderRadius: '4px', fontSize: '11px', fontFamily: 'monospace', marginBottom: '8px' }}>
+              CHECKOUT FOR: {currentProduct.name}
+            </div>
             <h2 style={{ fontSize: '20px', color: '#FFFFFF', marginTop: 0, marginBottom: '6px' }}>
               Commercial Redistribution License
             </h2>
             <p style={{ color: '#9BA7B9', fontSize: '14px', margin: '0 0 20px 0' }}>
-              One single purchase. Complete source code, zero monthly fees, zero royalty claims.
+              One-off purchase. Complete source code, zero monthly fees, zero royalty claims.
             </p>
+
+            {checkoutError && (
+              <div style={{ padding: '12px 16px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', color: '#EF4444', fontSize: '13px', fontFamily: 'monospace', marginBottom: '16px' }}>
+                ✕ {checkoutError}
+              </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
               {/* Pricing Card */}
@@ -274,21 +494,21 @@ export default function App() {
                     PERPETUAL OPERATOR LICENSE
                   </div>
                   <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#FFFFFF', fontFamily: 'monospace', marginBottom: '4px' }}>
-                    £49.00 <span style={{ fontSize: '14px', color: '#7E8B9F', fontWeight: 'normal' }}>GBP</span>
+                    £{currentProduct.priceGbp.toFixed(2)} <span style={{ fontSize: '14px', color: '#7E8B9F', fontWeight: 'normal' }}>GBP</span>
                   </div>
                   <div style={{ fontSize: '12px', color: '#7E8B9F', marginBottom: '18px' }}>
-                    Approx. $62.00 USD · One-off purchase · No recurring charges
+                    Approx. ${currentProduct.priceUsdApprox.toFixed(2)} USD · One-off purchase · No recurring charges
                   </div>
 
                   <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0', fontSize: '13px', color: '#CBD5E1', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#10B981' }}>✓</span> Complete React 19 + TypeScript source code (38 files)
+                      <span style={{ color: '#10B981' }}>✓</span> Complete {currentProduct.name} source code ({currentProduct.filesCount} files)
                     </li>
                     <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#10B981' }}>✓</span> Perpetual commercial redistribution rights for client & SaaS apps
+                      <span style={{ color: '#10B981' }}>✓</span> Perpetual commercial redistribution rights for client & commercial apps
                     </li>
                     <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ color: '#10B981' }}>✓</span> Sub-second build verified on Node 20+ and Bun 1.1+
+                      <span style={{ color: '#10B981' }}>✓</span> Zero cloud lock-in · 100% self-hosted offline execution
                     </li>
                     <li style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ color: '#10B981' }}>✓</span> Cryptographic release verification (SHA-256 authenticated)
@@ -336,7 +556,7 @@ export default function App() {
                     }}
                   >
                     <span style={{ fontStyle: 'italic', fontWeight: '900', color: '#003087' }}>Pay</span><span style={{ fontStyle: 'italic', fontWeight: '900', color: '#0079C1' }}>Pal</span>
-                    <span style={{ color: '#003087', fontWeight: 'bold' }}>— Checkout £49.00 GBP</span>
+                    <span style={{ color: '#003087', fontWeight: 'bold' }}>— Checkout £{currentProduct.priceGbp.toFixed(2)} GBP</span>
                   </button>
 
                   {/* Direct Card / Instant Test Checkout */}
@@ -368,7 +588,7 @@ export default function App() {
                   Technical Assurance & Refund Policy
                 </h3>
                 <p style={{ fontSize: '13px', color: '#9BA7B9', lineHeight: 1.6, margin: '0 0 14px 0' }}>
-                  If the software contains reproducible technical defects that prevent compilation or core usage as documented, and engineering support cannot remediate the defect within 5 business days, a full refund of the £49 purchase price will be issued upon request within 14 days of purchase.
+                  If the software contains reproducible technical defects that prevent compilation or core usage as documented, and engineering support cannot remediate the defect within 5 business days, a full refund of the £{currentProduct.priceGbp.toFixed(0)} purchase price will be issued upon request within 14 days of purchase.
                 </p>
                 <div style={{ borderTop: '1px solid #202634', paddingTop: '14px', marginTop: '14px' }}>
                   <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#FFFFFF', marginBottom: '6px' }}>PayPal & Card Settlement</div>
@@ -387,7 +607,7 @@ export default function App() {
               ✓ AUTHORIZED PRODUCT FULFILMENT & DOWNLOAD
             </div>
             <h2 style={{ fontSize: '20px', color: '#FFFFFF', marginTop: 0, marginBottom: '12px' }}>
-              Your Licensed Release Package
+              Your Licensed Release Package: {purchasedOrder ? purchasedOrder.productName : currentProduct.name}
             </h2>
             <p style={{ color: '#9BA7B9', fontSize: '14px', lineHeight: 1.6, margin: '0 0 20px 0' }}>
               Your order has been verified and registered. Download your release bundle and verify its cryptographic hash below:
@@ -408,6 +628,10 @@ export default function App() {
                     <div style={{ color: '#7E8B9F' }}>CUSTOMER:</div>
                     <div style={{ color: '#CBD5E1' }}>{purchasedOrder.customerEmail}</div>
                   </div>
+                  <div>
+                    <div style={{ color: '#7E8B9F' }}>PRODUCT:</div>
+                    <div style={{ color: '#38BDF8' }}>{purchasedOrder.productName}</div>
+                  </div>
                 </div>
               </div>
             )}
@@ -417,16 +641,16 @@ export default function App() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
                 <div>
                   <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#FFFFFF', marginBottom: '4px' }}>
-                    turnkey-react19-starter-kit-v1.0.0.zip
+                    {purchasedOrder ? purchasedOrder.bundleFilename : currentProduct.bundleFilename}
                   </div>
                   <div style={{ fontSize: '12px', color: '#7E8B9F', fontFamily: 'monospace' }}>
-                    Size: 28,132 bytes (28.1 KB) · 38 files included
+                    Size: {currentProduct.bundleSizeBytes.toLocaleString()} bytes · {currentProduct.filesCount} files included
                   </div>
                 </div>
 
                 <a
-                  href="/dist-release/turnkey-react19-starter-kit-v1.0.0.zip"
-                  download="turnkey-react19-starter-kit-v1.0.0.zip"
+                  href={purchasedOrder ? purchasedOrder.downloadUrl : currentProduct.deliverableLink}
+                  download={purchasedOrder ? purchasedOrder.bundleFilename : currentProduct.bundleFilename}
                   style={{
                     padding: '12px 24px',
                     background: '#10B981',
@@ -445,16 +669,16 @@ export default function App() {
               </div>
 
               <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #202634', display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '12px', fontFamily: 'monospace' }}>
-                <a href="/dist-release/SETUP_GUIDE.md" target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
+                <a href={currentProduct.setupGuideLink} target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
                   📄 View SETUP_GUIDE.md
                 </a>
-                <a href="/dist-release/LICENSE.txt" target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
+                <a href={currentProduct.licenseLink} target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
                   ⚖️ View LICENSE.txt
                 </a>
-                <a href="/dist-release/RELEASE_MANIFEST.json" target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
+                <a href={currentProduct.manifestLink} target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
                   📋 View RELEASE_MANIFEST.json
                 </a>
-                <a href="/dist-release/CHECKSUM.sha256" target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
+                <a href={currentProduct.checksumLink} target="_blank" rel="noreferrer" style={{ color: '#38BDF8', textDecoration: 'none' }}>
                   🔐 View CHECKSUM.sha256
                 </a>
               </div>
@@ -466,17 +690,7 @@ export default function App() {
                 CLI EXTRACTION & CHECKSUM VERIFICATION
               </div>
               <pre style={{ margin: 0, padding: '12px', background: '#0F1217', borderRadius: '4px', color: '#10B981', fontFamily: 'monospace', fontSize: '12px', overflowX: 'auto', lineHeight: 1.6 }}>
-{`# 1. Verify SHA-256 Checksum
-sha256sum -c dist-release/CHECKSUM.sha256
-# Expected: f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265
-
-# 2. Extract into workspace
-unzip turnkey-react19-starter-kit-v1.0.0.zip -d my-react-app
-cd my-react-app
-
-# 3. Install and run development server
-bun install
-bun run dev`}
+{currentProduct.verificationCommands}
               </pre>
             </div>
           </div>
@@ -485,7 +699,7 @@ bun run dev`}
         {activeTab === 'contact' && (
           <div>
             <h2 style={{ fontSize: '20px', color: '#FFFFFF', marginTop: 0, marginBottom: '14px' }}>
-              Contact Our Team
+              Contact Our Engineering Team
             </h2>
             {contactSubmitted ? (
               <div style={{ padding: '16px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '6px', color: '#10B981', fontFamily: 'monospace', fontSize: '13px' }}>

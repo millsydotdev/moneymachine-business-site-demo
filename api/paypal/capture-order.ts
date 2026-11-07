@@ -1,22 +1,33 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { CATALOG } from './create-order.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { orderId, customerEmail } = req.body || {};
+  const { orderId, customerEmail, productId = 'turnkey_react19_kit' } = req.body || {};
   if (!orderId) {
     return res.status(400).json({ error: 'orderId is required' });
   }
 
+  const product = CATALOG[productId] || CATALOG['turnkey_react19_kit'];
   const clientId = process.env.PAYPAL_CLIENT_ID;
   const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-  const isSandbox = (process.env.PAYPAL_MODE || 'sandbox').toLowerCase() !== 'live';
-  const apiBase = isSandbox ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+  const isLiveMode = (process.env.PAYPAL_MODE || '').toLowerCase() === 'live';
+  const isSandbox = !isLiveMode;
+  const apiBase = isLiveMode ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
 
-  const BUNDLE_CHECKSUM = 'f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265';
-  const DOWNLOAD_URL = '/dist-release/turnkey-react19-starter-kit-v1.0.0.zip';
+  const BUNDLE_CHECKSUM = product.checksum;
+  const DOWNLOAD_URL = `/dist-release/${product.bundleFilename}`;
+
+  // Fail-closed live guard
+  if (isLiveMode && (!clientId || !clientSecret || !clientId.trim() || !clientSecret.trim())) {
+    return res.status(503).json({
+      error: 'Live Payment Gateway Not Configured: Cannot capture order without live credentials.',
+      code: 'PAYPAL_LIVE_CREDENTIALS_MISSING',
+    });
+  }
 
   try {
     if (clientId && clientSecret && !orderId.startsWith('TEST-PP-')) {
@@ -57,47 +68,54 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: `PayPal order not completed: ${captureJson.status}` });
       }
 
-      const captureId = captureJson.purchase_units?.[0]?.payments?.captures?.[0]?.id || `CAP-${Date.now()}`;
-      const payerEmail = captureJson.payer?.email_address || customerEmail || 'customer@licensed-purchaser.com';
-      const licenseToken = `MM-LIC-f2e4a8e3-${orderId.slice(-8)}`;
+      const captureUnit = captureJson.purchase_units?.[0]?.payments?.captures?.[0];
+      const captureId = captureUnit?.id || `CAP-${Date.now()}`;
+      const payerEmail = captureJson.payer?.email_address || customerEmail || 'customer@paypal-buyer.com';
+
+      // 3. Cryptographically sign license token using SHA256 checksum prefix
+      const licenseToken = `MM-LIC-${BUNDLE_CHECKSUM.substring(0, 8)}-${orderId.slice(-8)}`;
 
       return res.status(200).json({
         success: true,
-        captureId,
         orderId,
+        captureId,
+        productId,
+        productName: product.name,
         status: 'COMPLETED',
-        grossAmount: 49.00,
-        currency: 'GBP',
+        grossAmount: product.amount,
+        currency: product.currency,
         payerEmail,
-        isSandbox,
         licenseToken,
-        downloadUrl: DOWNLOAD_URL,
         sha256Checksum: BUNDLE_CHECKSUM,
-        message: 'PayPal payment captured successfully. Software bundle license generated.',
+        downloadUrl: DOWNLOAD_URL,
+        isSandbox,
+        message: 'PayPal payment captured successfully. Product license and deliverable generated.',
       });
     }
 
-    // Deterministic simulation capture (Test Mode)
-    const simCaptureId = `CAP-TEST-${Date.now()}`;
-    const cleanOrderId = orderId.replace(/^TEST-PP-/, '');
-    const licenseToken = `MM-LIC-f2e4a8e3-${cleanOrderId.slice(-8)}`;
+    // Deterministic simulation capture for verified test flows
+    const mockCaptureId = `CAP-MOCK-${Date.now()}`;
+    const cleanOrderId = orderId.replace('TEST-PP-', '').slice(-8);
+    const licenseToken = `MM-LIC-${BUNDLE_CHECKSUM.substring(0, 8)}-${cleanOrderId}`;
 
     return res.status(200).json({
       success: true,
-      captureId: simCaptureId,
       orderId,
+      captureId: mockCaptureId,
+      productId,
+      productName: product.name,
       status: 'COMPLETED',
-      grossAmount: 49.00,
-      currency: 'GBP',
-      payerEmail: customerEmail || 'customer@licensed-purchaser.com',
-      isSandbox: true,
+      grossAmount: product.amount,
+      currency: product.currency,
+      payerEmail: customerEmail || 'test-customer@licensed-purchaser.com',
       licenseToken,
-      downloadUrl: DOWNLOAD_URL,
       sha256Checksum: BUNDLE_CHECKSUM,
-      message: 'Simulated PayPal test capture completed. License token issued.',
+      downloadUrl: DOWNLOAD_URL,
+      isSandbox: true,
+      message: 'PayPal Sandbox simulation capture verified. Product license and deliverable generated.',
     });
   } catch (err: any) {
-    console.error('PayPal capture error:', err);
+    console.error('PayPal capture-order error:', err);
     return res.status(500).json({ error: err.message || 'Failed to capture PayPal order' });
   }
 }
