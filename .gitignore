@@ -1,2 +1,22 @@
-.vercel
+# Dependencies
+node_modules/
+
+# Production artifacts
+dist/
+dist-ssr/
+*.local
+
+# Deployments & Cloud
+.vercel/
+
+# Environment and secrets
 .env*
+*.pem
+
+# Editor & OS
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
