@@ -1,0 +1,28 @@
+{
+  "bundle_filename": "turnkey-react19-starter-kit-v1.0.0.zip",
+  "bundle_size_bytes": 28132,
+  "currency": "GBP",
+  "modules_included": [
+    "Authentication Context & Session Persistence",
+    "Dark/Light Theme Provider with LocalStorage persistence",
+    "Headless UI Component Primitives (Button, Card, Badge, Modal, Input, Table)",
+    "Custom React Hooks (useLocalStorage, useDebounce)",
+    "Responsive DashboardLayout with collapsible mobile navigation",
+    "Typed API Client with error handling and offline fallback",
+    "Domain Type Definitions with strict TypeScript safety"
+  ],
+  "price": 49.0,
+  "product_id": "MM-PROD-REACT19-KIT",
+  "product_name": "Turnkey Enterprise React 19 + TypeScript Starter Kit",
+  "requirements": {
+    "bun": ">=1.1.0",
+    "node": ">=20.0.0",
+    "react": "^19.0.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  },
+  "sha256_checksum": "f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265",
+  "verification_status": "VALIDATED_ISOLATED_BUILD_PASS",
+  "verified_at": "2026-11-07T16:13:25Z",
+  "version": "1.0.0"
+}
