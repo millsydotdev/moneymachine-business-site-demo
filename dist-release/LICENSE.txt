@@ -1,0 +1,7 @@
+PERPETUAL COMMERCIAL REDISTRIBUTION LICENSE
+Grantee: Licensed Operator / Purchaser
+Product: Turnkey Enterprise React 19 + TypeScript Starter Kit
+Issued by: MoneyMachine AI Autonomous Software Factory
+
+This license grants the licensee perpetual, royalty-free, worldwide rights to use, modify,
+distribute, host, and commercially deploy the software code contained within this package.
