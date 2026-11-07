@@ -5,8 +5,8 @@
   "currency": "GBP",
   "price": 49.0,
   "bundle_filename": "turnkey-react19-starter-kit-v1.0.0.zip",
-  "sha256_checksum": "b5b85ab213f46003288c10f19d729c7d1f27ba0f88f3bc24f42525af9db1ff60",
-  "bundle_size_bytes": 16900,
+  "sha256_checksum": "f2e4a8e39cb691dc258829108da1463b76427df7b38c2ebff28e00bcc11a5265",
+  "bundle_size_bytes": 28132,
   "requirements": {
     "node": ">=20.0.0",
     "bun": ">=1.1.0",
